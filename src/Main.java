@@ -21,10 +21,10 @@ public class Main {
             texts[i] = generateText("abc", 100_000);
         }
 
-        Runnable clone = ()->{
-            {
+        Runnable generateWords = () -> {
+
                 try {
-                    for (int i = 0; i < texts.length; i++) {
+                    for (int i = 0; i < 10_000; i++) {
                         A_AMOUNT.put(texts[i]);
                         B_AMOUNT.put(texts[i]);
                         C_AMOUNT.put(texts[i]);
@@ -32,28 +32,17 @@ public class Main {
                 } catch (InterruptedException e) {
                     return;
                 }
-
-            }
         };
 
-        Thread cloneThread = new Thread(clone);
+        Thread cloneThread = new Thread(generateWords);
         cloneThread.start();
 
-        Runnable aExamination = ()->{
-            int maxCounterA = 0;
+        Runnable aExamination = () -> {
             for (int i = 0; i < 10_000; i++) {
-                int letterCounter = 0;
                 String word = String.valueOf(A_AMOUNT.element());
-                char[] chars = word.toCharArray();
-                for (int j = 0; j < chars.length; j++) {
-                    if (chars[j] == 'a') {
-                        letterCounter++;
-                    }
-                }
-                if (letterCounter > maxCounterA) {
-                    maxCounterA = letterCounter;
-                    A.getAndSet(maxCounterA);
-
+                int letterCounter = (int) word.chars().filter(ch -> ch == 'a').count();
+                if (letterCounter > A.get()) {
+                    A.getAndSet(letterCounter);
                 } else {
                     try {
                         A_AMOUNT.take();
@@ -66,27 +55,18 @@ public class Main {
         Thread aThread = new Thread(aExamination);
         aThread.start();
 
-        Runnable bExamination = ()->{
-            int maxCounterB = 0;
+        Runnable bExamination = () -> {
             for (int i = 0; i < 10_000; i++) {
-                int letterCounter = 0;
                 String word = String.valueOf(B_AMOUNT.element());
-                char[] chars = word.toCharArray();
-                for (int j = 0; j < chars.length; j++) {
-                    if (chars[j] == 'b') {
-                        letterCounter++;
-                    }
-                }
-                if (letterCounter > maxCounterB) {
-                    maxCounterB = letterCounter;
-                    B.getAndSet(maxCounterB);
+                int letterCounter = (int) word.chars().filter(ch -> ch == 'b').count();
+                if (letterCounter > B.get()) {
+                    B.getAndSet(letterCounter);
                     B_AMOUNT.clear();
                     try {
                         B_AMOUNT.put(word);
                     } catch (InterruptedException e) {
                         return;
                     }
-
                 } else {
                     try {
                         B_AMOUNT.take();
@@ -100,20 +80,12 @@ public class Main {
         Thread bThread = new Thread(bExamination);
         bThread.start();
 
-        Runnable cExamination = ()->{
-            int maxCounterC = 0;
+        Runnable cExamination = () -> {
             for (int i = 0; i < 10_000; i++) {
-                int letterCounter = 0;
                 String word = String.valueOf(C_AMOUNT.element());
-                char[] chars = word.toCharArray();
-                for (int j = 0; j < chars.length; j++) {
-                    if (chars[j] == 'c') {
-                        letterCounter++;
-                    }
-                }
-                if (letterCounter > maxCounterC) {
-                    maxCounterC = letterCounter;
-                    C.getAndSet(maxCounterC);
+                int letterCounter = (int) word.chars().filter(ch -> ch == 'c').count();
+                if (letterCounter > C.get()) {
+                    C.getAndSet(letterCounter);
                     C_AMOUNT.clear();
                     try {
                         C_AMOUNT.put(word);
@@ -137,9 +109,9 @@ public class Main {
         bThread.join();
         cTread.join();
 
-        System.out.println("Самое длинное слово с буквой \"а\" " + A +"\n"+
-                "Самое длинное слово с буквой \"b\" " + B +"\n"+
-                "Самое длинное слово с буквой \"c\" " + C +"\n");
+        System.out.println("Самое длинное слово с буквой \"а\" " + A + "\n" +
+                "Самое длинное слово с буквой \"b\" " + B + "\n" +
+                "Самое длинное слово с буквой \"c\" " + C + "\n");
         cloneThread.interrupt();
 
     }
